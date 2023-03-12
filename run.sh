@@ -1,0 +1,1 @@
+nohup bash ./setup_databases.sh /mnt/sdc/colabfold_db > run.log 2>&1 &
