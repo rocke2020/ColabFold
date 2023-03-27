@@ -8,3 +8,7 @@
 /pytestemp
 __pycache__
 .DS_Store
+/bio_data
+/app/af_out
+/tmp
+/app/**/*.log

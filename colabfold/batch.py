@@ -1230,7 +1230,8 @@ def run(
     use_cluster_profile: bool = True,
     feature_dict_callback: Callable[[Any], Any] = None,
     **kwargs
-):
+):  
+    logger.info('run local batch.py')
     # check what device is available
     try:
         # check if TPU is available
