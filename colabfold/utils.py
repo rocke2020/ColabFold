@@ -50,7 +50,9 @@ def setup_logging(log_file: Path):
             root.removeHandler(handler)
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s %(message)s",
+        # format="%(asctime)s %(message)s",
+        format='%(asctime)s %(filename)s %(lineno)d: %(message)s',
+        datefmt='%m-%d %H:%M:%S',
         handlers=[TqdmHandler(), logging.FileHandler(log_file)],
     )
     # otherwise jax will tell us about its search for devices

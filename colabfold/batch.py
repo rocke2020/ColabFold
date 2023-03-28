@@ -74,6 +74,9 @@ logger = logging.getLogger(__name__)
 import jax
 import jax.numpy as jnp
 logging.getLogger('jax._src.lib.xla_bridge').addFilter(lambda _: False)
+from icecream import ic
+ic.configureOutput(includeContext=True, argToStringFunction=lambda _: str(_))
+
 
 def patch_openmm():
     from simtk.openmm import app
@@ -994,7 +997,7 @@ def generate_input_feature(
     model_type: str,
     max_seq: int,
 ) -> Tuple[Dict[str, Any], Dict[str, str]]:
-
+    """ For ppi with multimer, query_seqs_cardinality: [1, 1] """
     input_feature = {}
     domain_names = {}
     if is_complex and "multimer" not in model_type:
@@ -1241,6 +1244,7 @@ def run(
         DEVICE = "tpu"
         use_gpu_relax = False
     except:
+        import jax
         if jax.local_devices()[0].platform == 'cpu':
             logger.info("WARNING: no GPU detected, will be using CPU")
             DEVICE = "cpu"
@@ -1282,6 +1286,8 @@ def run(
     use_fuse              = kwargs.pop("use_fuse", True)
     use_bfloat16          = kwargs.pop("use_bfloat16", True)
     max_msa               = kwargs.pop("max_msa",None)
+    # max_msa is None
+    # logger.info('max_msa %s', max_msa)
     if max_msa is not None:
         max_seq, max_extra_seq = [int(x) for x in max_msa.split(":")]
 
@@ -1300,6 +1306,7 @@ def run(
     # get max length
     max_len = 0
     max_num = 0
+    # multi seq input, query_sequence is list. single sequence input, query_sequence is str.
     for _, query_sequence, _ in queries:
         N = 1 if isinstance(query_sequence,str) else len(query_sequence)
         L = len("".join(query_sequence))
@@ -1378,17 +1385,18 @@ def run(
     first_job = True
     for job_number, (raw_jobname, query_sequence, a3m_lines) in enumerate(queries):
         jobname = safe_filename(raw_jobname)
-        
+        job_result_dir = result_dir / jobname
+        job_result_dir.mkdir(exist_ok=True)
         #######################################
         # check if job has already finished
         #######################################
         # In the colab version and with --zip we know we're done when a zip file has been written
-        result_zip = result_dir.joinpath(jobname).with_suffix(".result.zip")
+        result_zip = job_result_dir.joinpath(jobname).with_suffix(".result.zip")
         if keep_existing_results and result_zip.is_file():
             logger.info(f"Skipping {jobname} (result.zip)")
             continue
         # In the local version we use a marker file
-        is_done_marker = result_dir.joinpath(jobname + ".done.txt")
+        is_done_marker = job_result_dir.joinpath(jobname + ".done.txt")
         if keep_existing_results and is_done_marker.is_file():
             logger.info(f"Skipping {jobname} (already done)")
             continue
@@ -1402,7 +1410,7 @@ def run(
         try:
             if use_templates or a3m_lines is None:
                 (unpaired_msa, paired_msa, query_seqs_unique, query_seqs_cardinality, template_features) \
-                = get_msa_and_templates(jobname, query_sequence, result_dir, msa_mode, use_templates, 
+                = get_msa_and_templates(jobname, query_sequence, job_result_dir, msa_mode, use_templates, 
                     custom_template_path, pair_mode, host_url)
             if a3m_lines is not None:
                 (unpaired_msa, paired_msa, query_seqs_unique, query_seqs_cardinality, template_features_) \
@@ -1411,7 +1419,7 @@ def run(
 
             # save a3m
             msa = msa_to_str(unpaired_msa, paired_msa, query_seqs_unique, query_seqs_cardinality)
-            result_dir.joinpath(f"{jobname}.a3m").write_text(msa)
+            job_result_dir.joinpath(f"{jobname}.a3m").write_text(msa)
                 
         except Exception as e:
             logger.exception(f"Could not get MSA/templates for {jobname}: {e}")
@@ -1438,9 +1446,9 @@ def run(
         ######################
         try:
             # get list of lengths
+            # sum here is to merge the query_sequence_len_array
             query_sequence_len_array = sum([[len(x)] * y 
                 for x,y in zip(query_seqs_unique, query_seqs_cardinality)],[])
-            
             # decide how much to pad (to avoid recompiling)
             if seq_len > pad_len:
                 if isinstance(recompile_padding, float):
@@ -1455,7 +1463,9 @@ def run(
                 if len(queries) == 1 and msa_mode != "single_sequence":
                     # get number of sequences
                     if "msa_mask" in feature_dict:
+                        # this num_seqs may be larger than max_seq
                         num_seqs = int(sum(feature_dict["msa_mask"].max(-1) == 1))
+                        # logger.info('"msa_mask" in feature_dict %s', num_seqs)
                     else:
                         num_seqs = int(len(feature_dict["msa"]))
 
@@ -1489,7 +1499,7 @@ def run(
 
             results = predict_structure(
                 prefix=jobname,
-                result_dir=result_dir,
+                result_dir=job_result_dir,
                 feature_dict=feature_dict,
                 is_complex=is_complex,
                 use_templates=use_templates,
@@ -1524,7 +1534,7 @@ def run(
 
         # make msa plot
         msa_plot = plot_msa_v2(feature_dict, dpi=dpi)
-        coverage_png = result_dir.joinpath(f"{jobname}_coverage.png")
+        coverage_png = job_result_dir.joinpath(f"{jobname}_coverage.png")
         msa_plot.savefig(str(coverage_png), bbox_inches='tight')
         msa_plot.close()
         result_files.append(coverage_png)
@@ -1532,13 +1542,13 @@ def run(
         # load the scores
         scores = []
         for r in results["rank"][:5]:
-            scores_file = result_dir.joinpath(f"{jobname}_scores_{r}.json")
+            scores_file = job_result_dir.joinpath(f"{jobname}_scores_{r}.json")
             with scores_file.open("r") as handle:
                 scores.append(json.load(handle))
         
         # write alphafold-db format (pAE)
         if "pae" in scores[0]:
-          af_pae_file = result_dir.joinpath(f"{jobname}_predicted_aligned_error_v1.json")
+          af_pae_file = job_result_dir.joinpath(f"{jobname}_predicted_aligned_error_v1.json")
           af_pae_file.write_text(json.dumps({
               "predicted_aligned_error":scores[0]["pae"],
               "max_predicted_aligned_error":scores[0]["max_pae"]}))
@@ -1547,7 +1557,7 @@ def run(
           # make pAE plots
           paes_plot = plot_paes([np.asarray(x["pae"]) for x in scores],
               Ls=query_sequence_len_array, dpi=dpi)
-          pae_png = result_dir.joinpath(f"{jobname}_pae.png")
+          pae_png = job_result_dir.joinpath(f"{jobname}_pae.png")
           paes_plot.savefig(str(pae_png), bbox_inches='tight')
           paes_plot.close()
           result_files.append(pae_png)
@@ -1555,17 +1565,17 @@ def run(
         # make pLDDT plot
         plddt_plot = plot_plddts([np.asarray(x["plddt"]) for x in scores],
             Ls=query_sequence_len_array, dpi=dpi)
-        plddt_png = result_dir.joinpath(f"{jobname}_plddt.png")
+        plddt_png = job_result_dir.joinpath(f"{jobname}_plddt.png")
         plddt_plot.savefig(str(plddt_png), bbox_inches='tight')
         plddt_plot.close()
         result_files.append(plddt_png)
 
         if use_templates:
-            templates_file = result_dir.joinpath(f"{jobname}_template_domain_names.json")
+            templates_file = job_result_dir.joinpath(f"{jobname}_template_domain_names.json")
             templates_file.write_text(json.dumps(domain_names))
             result_files.append(templates_file)
 
-        result_files.append(result_dir.joinpath(jobname + ".a3m"))
+        result_files.append(job_result_dir.joinpath(jobname + ".a3m"))
         result_files += [bibtex_file, config_out_file]
 
         if zip_results:

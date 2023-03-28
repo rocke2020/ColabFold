@@ -17,11 +17,7 @@ from colabfold.utils import setup_logging
 
 root_input_dir = Path('/mnt/sdc/af_input/pos_complex_in_one_seq')
 test_file = '1awr_C_I.fasta'
-input_dir = root_input_dir / test_file #@param {type:"string"}
-result_dir = f'app/af_out/{Path(test_file).stem}' #@param {type:"string"}
-Path(result_dir).mkdir(exist_ok=1, parents=1)
 default_data_dir = Path('/mnt/sdc/af_data')
-# number of models to use
 msa_mode = "MMseqs2 (UniRef+Environmental)" #@param ["MMseqs2 (UniRef+Environmental)", "MMseqs2 (UniRef only)","single_sequence","custom"]
 num_models = 5 #@param [1,2,3,4,5] {type:"raw"}
 num_recycles = 9 #@param [1,3,6,12,24,48] {type:"raw"}
@@ -33,6 +29,14 @@ use_templates = True #@param {type:"boolean"}
 do_not_overwrite_results = False #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 
+
+single_file_input = 0
+if single_file_input:
+    input_dir = root_input_dir / test_file
+else:
+    input_dir = root_input_dir
+result_dir = f'app/af_out/{Path(input_dir).stem}' #@param {type:"string"}
+Path(result_dir).mkdir(exist_ok=1, parents=1)
 if 'logging_setup' not in globals():
     setup_logging(Path(result_dir).joinpath("log.txt"))
     logging_setup = True
@@ -58,4 +62,6 @@ def main():
         pair_mode="unpaired+paired",
         stop_at_score=stop_at_score,
         zip_results=zip_results,
+        num_seeds=5,
+        num_relax=5,
     )
