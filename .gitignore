@@ -12,3 +12,5 @@ __pycache__
 /app/af_out
 /tmp
 /app/**/*.log
+/peptide_utils/**/*.log
+/MsaServer/mmseqs
