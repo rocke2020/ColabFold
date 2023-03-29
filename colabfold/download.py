@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 # The data dir location logic switches between a version with and one without "params" because alphafold
 # always internally joins "params". (We should probably patch alphafold)
-default_data_dir = Path(appdirs.user_cache_dir(__package__ or "colabfold"))
+# default_data_dir = Path(appdirs.user_cache_dir(__package__ or "colabfold"))
+default_data_dir = Path('.')
 
 
 def download_alphafold_params(model_type: str, data_dir: Path = default_data_dir):
@@ -53,7 +54,21 @@ def download_alphafold_params(model_type: str, data_dir: Path = default_data_dir
     success_marker.touch()
 
 
+def extract_local(data_dir='/mnt/sdc/cf_params'):
+    """  """
+    for file in Path(data_dir).glob('*.tar'):
+        # if file.stem != 'alphafold_params_colab_2022-12-06': continue
+        file = tarfile.open(file, mode="r|")
+        file.extractall(path=data_dir)
+
+
+def compare_file_md5_with_af_params():
+    """  """
+    pass
+
+
 if __name__ == "__main__":
     # TODO: Arg to select which one
-    download_alphafold_params("alphafold2_multimer_v3")
-    download_alphafold_params("alphafold2_ptm")
+    # download_alphafold_params("alphafold2_multimer_v3")
+    # download_alphafold_params("alphafold2_ptm")
+    extract_local()
