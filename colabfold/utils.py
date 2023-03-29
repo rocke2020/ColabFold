@@ -50,7 +50,9 @@ def setup_logging(log_file: Path):
             root.removeHandler(handler)
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s %(message)s",
+        # format="%(asctime)s %(message)s",
+        format='%(asctime)s %(filename)s %(lineno)d: %(message)s',
+        datefmt='%m-%d %H:%M:%S',
         handlers=[TqdmHandler(), logging.FileHandler(log_file)],
     )
     # otherwise jax will tell us about its search for devices
@@ -170,6 +172,9 @@ _entity_poly_seq.hetero
                 for chain in model:
                     res_idx = 1
                     for residue in chain:
+                        hetatm, _, _ = residue.get_id()
+                        if hetatm != " ":
+                            continue
                         poly_seq.append(
                             (chain_idx, res_idx, residue.get_resname(), "n")
                         )

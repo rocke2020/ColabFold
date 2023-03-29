@@ -6,8 +6,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd "${SCRIPT_DIR}"
 
 # choose which pdb rsync server to use
-#PDB_SERVER=rsync.wwpdb.org::ftp                                   # RCSB PDB server name
-#PDB_PORT=33444                                                    # port RCSB PDB server is using
+PDB_SERVER=rsync.wwpdb.org::ftp                                   # RCSB PDB server name
+PDB_PORT=33444                                                    # port RCSB PDB server is using
 #
 #PDB_SERVER=rsync.ebi.ac.uk::pub/databases/rcsb/pdb-remediated     # PDBe server name
 #PDB_PORT=873                                                      # port PDBe server is using
