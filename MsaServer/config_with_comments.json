@@ -2,28 +2,33 @@
     "app": "colabfold",
     "verbose": true,
     "server" : {
+        // you might want to change the port
         "address"    : "127.0.0.1:80",
         "dbmanagment": false,
         "cors"       : true
     },
     "paths" : {
-        "databases"    : "/mnt/sdc/colabfold_db",
+        "databases"    : "~/databases",
         "results"      : "~/jobs",
         "temporary"    : "~/tmp",
         "colabfold"    : {
+            // disable parallel stage execution if you plan to use exactly #workers of CPU-cores
+            // this will ~2-3x speedup the execution, while requiring more cores
             "parallelstages": true,
-            "uniref"        : "/mnt/sdc/colabfold_db/uniref30_2202_db",
-            "pdb"           : "/mnt/sdc/colabfold_db/pdb70_220313",
-            "environmental" : "/mnt/sdc/colabfold_db/colabfold_envdb_202108_db",
-            "pdb70"         : "/mnt/sdc/colabfold_db/pdb70",
-            "pdbdivided"    : "/mnt/sdc/colabfold_db/pdb/divided",
-            "pdbobsolete"   : "/mnt/sdc/colabfold_db/pdb/obsolete"
+            "uniref"        : "~/databases/uniref30_2202_db",
+            "pdb"           : "~/databases/pdb70_220313",
+            "environmental" : "~/databases/colabfold_envdb_202108_db",
+            "pdb70"         : "~/databases/pdb70",
+            "pdbdivided"    : "~/databases/pdb/divided",
+            "pdbobsolete"   : "~/databases/pdb/obsolete"
         },
         "mmseqs"       : "~/mmseqs/bin/mmseqs"
     },
     "local" : {
+        // this will allow up to 16 jobs at the same time
         "workers"  : 16
     },
+    // ignore the rest, redis is not used here
     "redis" : {
         "network"  : "tcp",
         "address"  : "mmseqs-web-redis:6379",
@@ -49,3 +54,4 @@
         }
     }
 }
+
