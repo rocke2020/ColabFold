@@ -24,7 +24,7 @@ num_recycles = 9 #@param [1,3,6,12,24,48] {type:"raw"}
 stop_at_score = 100 #@param {type:"string"}
 #@markdown - early stop computing models once score > threshold (avg. plddt for "structures" and ptmscore for "complexes")
 use_custom_msa = False
-use_amber = True #@param {type:"boolean"}
+use_amber = False #@param {type:"boolean"}
 use_templates = True #@param {type:"boolean"}
 do_not_overwrite_results = False #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
