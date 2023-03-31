@@ -17,3 +17,5 @@ __pycache__
 /MsaServer/databases
 /MsaServer/mmseqs-server
 /MsaServer/msa-server
+/MsaServer/jobs
+/MsaServer/tmp

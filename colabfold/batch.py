@@ -775,6 +775,7 @@ def get_msa_and_templates(
 ) -> Tuple[
     Optional[List[str]], Optional[List[str]], List[str], List[int], List[Dict[str, Any]]
 ]:
+    """ In this func, result_dir is actually job_result_dir, its filename is the jobname """
     from colabfold.colabfold import run_mmseqs2
 
     use_env = msa_mode == "mmseqs2_uniref_env"
@@ -791,7 +792,7 @@ def get_msa_and_templates(
     for seq in query_sequences:
         seq_idx = query_seqs_unique.index(seq)
         query_seqs_cardinality[seq_idx] += 1
-
+    t0 = time.time()
     # get template features
     template_features = []
     if use_templates:
@@ -877,7 +878,7 @@ def get_msa_and_templates(
                 paired_a3m_lines.append(f">{num+i}\n{query_seqs_unique[0]}\n")
     else:
         paired_a3m_lines = None
-
+    logger.info(f'run_mmseqs2 uses seconds {time.time() - t0}')
     return (
         a3m_lines,
         paired_a3m_lines,

@@ -30,7 +30,7 @@ do_not_overwrite_results = False #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 
 
-single_file_input = 0
+single_file_input = 1
 if single_file_input:
     input_dir = root_input_dir / test_file
 else:
@@ -38,7 +38,7 @@ else:
 result_dir = f'app/af_out/{Path(input_dir).stem}' #@param {type:"string"}
 Path(result_dir).mkdir(exist_ok=1, parents=1)
 if 'logging_setup' not in globals():
-    setup_logging(Path(result_dir).joinpath("log.txt"))
+    setup_logging(Path(result_dir).joinpath("log.log"))
     logging_setup = True
 
 

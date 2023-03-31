@@ -70,6 +70,7 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
                 use_templates=False, filter=None, use_pairing=False,
                 host_url="https://api.colabfold.com") -> Tuple[List[str], List[str]]:
   submission_endpoint = "ticket/pair" if use_pairing else "ticket/msa"
+  # logger.info(f'run_mmseqs2 local func {host_url}')
 
   def submit(seqs, mode, N=101):
     n, query = N, ""

@@ -18,6 +18,7 @@ See https://github.com/google/jax/#pip-installation-gpu-cuda for more details.
 If you're sure you want to run without a GPU, pass `--cpu`"""
 
 DEFAULT_API_SERVER = "https://api.colabfold.com"
+DEFAULT_API_SERVER = "http://127.0.0.1:8888"
 
 ACCEPT_DEFAULT_TERMS = \
 """

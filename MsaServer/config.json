@@ -2,7 +2,7 @@
     "app": "colabfold",
     "verbose": true,
     "server" : {
-        "address"    : "127.0.0.1:80",
+        "address"    : "127.0.0.1:8888",
         "dbmanagment": false,
         "cors"       : true
     },
