@@ -30,7 +30,7 @@ do_not_overwrite_results = False #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 
 
-single_file_input = 1
+single_file_input = 0
 if single_file_input:
     input_dir = root_input_dir / test_file
 else:

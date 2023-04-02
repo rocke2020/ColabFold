@@ -19,3 +19,4 @@ __pycache__
 /MsaServer/msa-server
 /MsaServer/jobs
 /MsaServer/tmp
+/MsaServer/**/*.log
