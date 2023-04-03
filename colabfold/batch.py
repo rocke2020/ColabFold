@@ -796,6 +796,7 @@ def get_msa_and_templates(
     # get template features
     template_features = []
     if use_templates:
+        logger.info('run mmseqs2 use_templates')
         a3m_lines_mmseqs2, template_paths = run_mmseqs2(
             query_seqs_unique,
             str(result_dir.joinpath(jobname)),
@@ -848,6 +849,7 @@ def get_msa_and_templates(
                 a3m_lines.append(f">{num + i}\n{seq}")
         else:
             # find normal a3ms
+            logger.info('run mmseqs2 use_pairing=False')
             a3m_lines = run_mmseqs2(
                 query_seqs_unique,
                 str(result_dir.joinpath(jobname)),
@@ -863,6 +865,7 @@ def get_msa_and_templates(
     ):
         # find paired a3m if not a homooligomers
         if len(query_seqs_unique) > 1:
+            logger.info('run mmseqs2 use_pairing=True')
             paired_a3m_lines = run_mmseqs2(
                 query_seqs_unique,
                 str(result_dir.joinpath(jobname)),

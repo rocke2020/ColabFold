@@ -11,6 +11,7 @@ __pycache__
 /bio_data
 /app/af_out
 /tmp
+zlog
 /app/**/*.log
 /peptide_utils/**/*.log
 /MsaServer/mmseqs

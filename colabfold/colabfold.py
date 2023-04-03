@@ -70,9 +70,10 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
                 use_templates=False, filter=None, use_pairing=False,
                 host_url="https://api.colabfold.com") -> Tuple[List[str], List[str]]:
   submission_endpoint = "ticket/pair" if use_pairing else "ticket/msa"
-  # logger.info(f'run_mmseqs2 local func {host_url}')
+  logger.info(f'run_mmseqs2 local func {submission_endpoint}')
 
   def submit(seqs, mode, N=101):
+    logger.info('seqs %s, mode %s, N %d', seqs, mode, N)
     n, query = N, ""
     for seq in seqs:
       query += f">{n}\n{seq}\n"
@@ -179,8 +180,10 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
   [seqs_unique.append(x) for x in seqs if x not in seqs_unique]
   Ms = [N + seqs_unique.index(seq) for seq in seqs]
   # lets do it!
+  
   if not os.path.isfile(tar_gz_file):
-    TIME_ESTIMATE = 150 * len(seqs_unique)
+    TIME_ESTIMATE = 7200 * len(seqs_unique)
+    max_seconds = TIME_ESTIMATE
     with tqdm(total=TIME_ESTIMATE, bar_format=TQDM_BAR_FORMAT) as pbar:
       while REDO:
         pbar.set_description("SUBMIT")
@@ -202,20 +205,20 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
 
         # wait for job to finish
         ID,TIME = out["id"],0
+        logger.info('job ID %s', ID)
         pbar.set_description(out["status"])
-        while out["status"] in ["UNKNOWN","RUNNING","PENDING"]:
+        while out["status"] in ["UNKNOWN", "RUNNING", "PENDING", "ERROR"]:
           t = 5 + random.randint(0,5)
           logger.error(f"Sleeping for {t}s. Reason: {out['status']}")
           time.sleep(t)
           out = status(ID)
-          pbar.set_description(out["status"])
-          if out["status"] == "RUNNING":
-            TIME += t
+          # pbar.set_description(out["status"])
+          TIME += t
+          if out["status"] in ("RUNNING", "ERROR"):
             pbar.update(n=t)
-          #if TIME > 900 and out["status"] != "COMPLETE":
-          #  # something failed on the server side, need to resubmit
-          #  N += 1
-          #  break
+          if TIME > max_seconds and out["status"] != "COMPLETE":
+            # something failed on the server side, need to resubmit
+            break
 
         if out["status"] == "COMPLETE":
           if TIME < TIME_ESTIMATE:
