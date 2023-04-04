@@ -25,12 +25,12 @@ stop_at_score = 100 #@param {type:"string"}
 #@markdown - early stop computing models once score > threshold (avg. plddt for "structures" and ptmscore for "complexes")
 use_custom_msa = False
 use_amber = False #@param {type:"boolean"}
-use_templates = True #@param {type:"boolean"}
+use_templates = False #@param {type:"boolean"}
 do_not_overwrite_results = False #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 
 
-single_file_input = 1
+single_file_input = 0
 if single_file_input:
     input_dir = root_input_dir / test_file
 else:

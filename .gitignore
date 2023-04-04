@@ -20,4 +20,5 @@ zlog
 /MsaServer/msa-server
 /MsaServer/jobs
 /MsaServer/tmp
+/MsaServer/test
 /MsaServer/**/*.log

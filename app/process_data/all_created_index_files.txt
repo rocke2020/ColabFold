@@ -1,0 +1,1 @@
+colabfold_envdb_202108_db.idx.0 colabfold_envdb_202108_db.idx.1 colabfold_envdb_202108_db.idx.2 colabfold_envdb_202108_db.idx.3 colabfold_envdb_202108_db.idx.4 colabfold_envdb_202108_db.idx.5 colabfold_envdb_202108_db.idx.6 colabfold_envdb_202108_db.idx.7 pdb70_220313.idx uniref30_2202_db.idx

@@ -70,7 +70,7 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
                 use_templates=False, filter=None, use_pairing=False,
                 host_url="https://api.colabfold.com") -> Tuple[List[str], List[str]]:
   submission_endpoint = "ticket/pair" if use_pairing else "ticket/msa"
-  logger.info(f'run_mmseqs2 local func {submission_endpoint}')
+  logger.info(f'run_mmseqs2 {host_url}/{submission_endpoint}')
 
   def submit(seqs, mode, N=101):
     logger.info('seqs %s, mode %s, N %d', seqs, mode, N)
@@ -180,7 +180,6 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
   [seqs_unique.append(x) for x in seqs if x not in seqs_unique]
   Ms = [N + seqs_unique.index(seq) for seq in seqs]
   # lets do it!
-  
   if not os.path.isfile(tar_gz_file):
     TIME_ESTIMATE = 7200 * len(seqs_unique)
     max_seconds = TIME_ESTIMATE
@@ -205,7 +204,7 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
 
         # wait for job to finish
         ID,TIME = out["id"],0
-        logger.info('job ID %s', ID)
+        # logger.info('job ID %s', ID)
         pbar.set_description(out["status"])
         while out["status"] in ["UNKNOWN", "RUNNING", "PENDING", "ERROR"]:
           t = 5 + random.randint(0,5)

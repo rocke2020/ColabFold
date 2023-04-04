@@ -6,60 +6,74 @@ import json
 import logging
 import requests
 sys.path.append(os.path.abspath('.'))
-from utils.log_util import get_logger
 import logging
 from requests import get, post
-from time import sleep, time
+import time
 from icecream import ic
 ic.configureOutput(includeContext=True, argToStringFunction=lambda _: str(_))
+import logging
 
 
-logger = get_logger(name=__name__, log_file=Path(__file__).with_suffix('.log'), log_level=logging.INFO)
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(filename)s %(lineno)d: %(message)s',
+                    datefmt='%m-%d %H:%M:%S')
 
-use_online_url = 1
+
+use_online_url = 0
 if use_online_url:
     host_url = "https://api.colabfold.com"
 else:
     host_url = 'http://127.0.0.1:8888'
+logger.info('host_url %s', host_url)
 
 
-
-def test_msa():
+def test_msa_and_pair():
     """  """
     
     query = '>101\nVNPTVFFDIAVDGEPLGRVSFELFADKVPKTAENFRALSTGEKGFGYKGSCFHRIIPGFMCQGGDFTRHNGTGGKSIYGEKFEDENFILKHTGPGILSMANAGPNTNGSQFFICTAKTEWLDGKHVVFGKVKEGMNIVEAMERFGSRNGKTSKKITIADCGQLE\n>102\nHAGPIA\n'
     mode = 'env'
     submission_endpoint = 'ticket/msa'
-    try:
-        res = requests.post(f'{host_url}/{submission_endpoint}', data={'q':query,'mode': mode}, timeout=6.02)
-        out = res.json()
-        logger.info('%s', out)
-    except Exception as identifier:
-        logger.exception(f'query {query}', exc_info=identifier)
-        raise identifier
+    res = requests.post(f'{host_url}/{submission_endpoint}', data={'q':query,'mode': mode}, timeout=6.02)
+    out = res.json()
+    print(out)
+
+    mode = ''
+    submission_endpoint = 'ticket/pair'
+    res = requests.post(f'{host_url}/{submission_endpoint}', data={'q':query,'mode': mode}, timeout=6.02)
+    out = res.json()
+    print(out)
+
+import logging
+import requests
+import time
+
+logger = logging.getLogger()
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(filename)s %(lineno)d: %(message)s',
+                    datefmt='%m-%d %H:%M:%S')
+# host_url = 'http://127.0.0.1:8888'
 
 
 def test_pairing():
     """  """
-    
     query = '>101\nVNPTVFFDIAVDGEPLGRVSFELFADKVPKTAENFRALSTGEKGFGYKGSCFHRIIPGFMCQGGDFTRHNGTGGKSIYGEKFEDENFILKHTGPGILSMANAGPNTNGSQFFICTAKTEWLDGKHVVFGKVKEGMNIVEAMERFGSRNGKTSKKITIADCGQLE\n>102\nHAGPIA\n'
     mode = ''
     submission_endpoint = 'ticket/pair'
-    try:
-        res = requests.post(f'{host_url}/{submission_endpoint}', data={'q':query,'mode': mode}, timeout=6.02)
-        out = res.json()
-        logger.info('%s', out)
-    except Exception as identifier:
-        logger.exception(f'query {query}', exc_info=identifier)
-        raise identifier
+    res = requests.post(f'{host_url}/{submission_endpoint}', data={'q':query,'mode': mode}, timeout=6.02)
+    out = res.json()
+    logger.info('%s', out)
 
-ID = '067a-BpkfSS3NmHh8alM6OB9VCkHbdbUZEK_XQ'
-
-
-def check_status(id='067a-BpkfSS3NmHh8alM6OB9VCkHbdbUZEK_XQ'):
-    """  """
-    out = status(id)
-    ic(out['status'])
+    # wait for job to finish
+    max_seconds = 15000
+    ID, TIME = out["id"], 0
+    while out["status"] in ["UNKNOWN", "RUNNING", "PENDING", "ERROR"]:
+        t = 5 + random.randint(0, 5)
+        logger.error(f"Sleeping for {t}s. Reason: {out['status']}")
+        time.sleep(t)
+        out = status(ID)
+        TIME += t
+        if TIME > max_seconds and out["status"] != "COMPLETE":
+            # something failed on the server side, need to resubmit
+            break
 
 
 def status(ID):
@@ -107,7 +121,17 @@ def download(ID, path):
     with open(path,"wb") as out: out.write(res.content)
 
 
+id_mas = '067a-BpkfSS3NmHh8alM6OB9VCkHbdbUZEK_XQ'
+id_pair = '3m6olJuvf_TV0UTKJxnGu3V3YnMxyHkkj915xg'
+
+
+def check_status(id='067a-BpkfSS3NmHh8alM6OB9VCkHbdbUZEK_XQ'):
+    """  """
+    out = status(id)
+    ic(out['status'])
+
+
 # test_msa()
 test_pairing()
-# check_status()
+# check_status(id_pair)
 # download(ID, 'out.tar.gz')
