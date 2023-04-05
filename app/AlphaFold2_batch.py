@@ -24,6 +24,8 @@ num_recycles = 9 #@param [1,3,6,12,24,48] {type:"raw"}
 stop_at_score = 100 #@param {type:"string"}
 #@markdown - early stop computing models once score > threshold (avg. plddt for "structures" and ptmscore for "complexes")
 use_custom_msa = False
+num_relax = 5
+# use_amber = num_relax > 0, that's when num_relax > 0, use_amber becomes True auto.
 use_amber = False #@param {type:"boolean"}
 use_templates = False #@param {type:"boolean"}
 do_not_overwrite_results = False #@param {type:"boolean"}
@@ -63,5 +65,5 @@ def main():
         stop_at_score=stop_at_score,
         zip_results=zip_results,
         num_seeds=5,
-        num_relax=5,
+        num_relax=num_relax,
     )
