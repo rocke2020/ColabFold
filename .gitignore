@@ -12,7 +12,7 @@ __pycache__
 /app/af_out
 /tmp
 zlog
-/app/**/*.log
+/app/*.log
 /peptide_utils/**/*.log
 /MsaServer/mmseqs
 /MsaServer/databases
