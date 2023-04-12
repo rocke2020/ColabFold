@@ -1,5 +1,5 @@
 import os, sys
-from app.AlphaFold2_batch import main
+from app.colabFold_batch_runner import main
 from utils.log_util import logger
 
 
