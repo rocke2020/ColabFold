@@ -25,7 +25,7 @@ ACCEPT_DEFAULT_TERMS = \
 WARNING: You are welcome to use the default MSA server, however keep in mind that it's a
 limited shared resource only capable of processing a few thousand MSAs per day. Please
 submit jobs only from a single IP address. We reserve the right to limit access to the
-server case-by-case when usage exceeds fair use. If you require more MSAs: You can 
+server case-by-case when usage exceeds fair use. If you require more MSAs: You can
 precompute all MSAs with `colabfold_search` or host your own API and pass it to `--host-url`
 """
 
@@ -66,7 +66,12 @@ def safe_filename(file: str) -> str:
 
 
 def get_commit() -> Optional[str]:
-    text = distribution("colabfold").read_text("direct_url.json")
+    try:
+        text = distribution("colabfold").read_text("direct_url.json")
+    except Exception as identifier:
+        absl_logging.info(identifier)
+        absl_logging.info('use None for commit')
+        return None
     if not text:
         return None
     direct_url = json.loads(text)

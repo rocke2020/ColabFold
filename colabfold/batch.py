@@ -1341,7 +1341,12 @@ def run(
 
     # sort model order
     model_order.sort()
-
+    try:
+        version = importlib_metadata.version("colabfold")
+    except Exception as identifier:
+        logging.info(identifier)
+        logging.info('use None for commit')
+        version = 'None'
     # Record the parameters of this run
     config = {
         "num_queries": len(queries),
@@ -1369,7 +1374,7 @@ def run(
         "use_cluster_profile": use_cluster_profile,
         "use_fuse": use_fuse,
         "use_bfloat16":use_bfloat16,
-        "version": importlib_metadata.version("colabfold"),
+        "version": version,
     }
     config_out_file = result_dir.joinpath("config.json")
     config_out_file.write_text(json.dumps(config, indent=4))
