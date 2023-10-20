@@ -1,7 +1,9 @@
+#!/bin/bash
+## Notes: run as bash
 [ ! -d app/zlog ] && mkdir app/zlog
+# Note: pass the gpu_id as the only one argument to this .sh, such as: 
+# bash run_colabfold.sh 0
+if [ $# -ne 1 ]; then echo 'args num is not 1'; exit 1; fi
 export CUDA_VISIBLE_DEVICES=$1
-# [ -f app/af_out/1awr_C_I/log.log ] && rm app/af_out/1awr_C_I/log.log
-# [ -d app/af_out/1awr_C_I ] && sudo rm -rf app/af_out/1awr_C_I
-# [ -d app/af_out/pos_complex_in_one_seq ] && sudo rm -rf app/af_out/pos_complex_in_one_seq
 nohup python run.py \
-> app/AlphaFold2_batch.log 2>&1 &
+> app/ColabFold_batch.log 2>&1 &
