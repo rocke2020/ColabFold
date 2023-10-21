@@ -16,17 +16,18 @@ logger.info('python_version %s', python_version)
 default_data_dir = Path('/mnt/sda/alphafold/af_data')
 msa_mode = "MMseqs2 (UniRef+Environmental)" #@param ["MMseqs2 (UniRef+Environmental)", "MMseqs2 (UniRef only)","single_sequence","custom"]
 num_models = 5 #@param [1,2,3,4,5] {type:"raw"}
-num_recycles = 9 #@param [1,3,6,12,24,48] {type:"raw"}
+num_recycles = 6 #@param [1,3,6,12,24,48] {type:"raw"}
 stop_at_score = 100 #@param {type:"string"}
 #@markdown - early stop computing models once score > threshold (avg. plddt for "structures" and ptmscore for "complexes")
 use_custom_msa = False
-num_relax = 3
+# A nice design to control relaxed num to optimize the speed.
+num_relax = 2
 use_amber = num_relax > 0 # that's when num_relax > 0, use_amber becomes True auto.
 # use_amber = False #@param {type:"boolean"}
 use_templates = True #@param {type:"boolean"}
 keep_existing_results = True #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
-
+model_order = [1, ]  # [1, 2, 3, 4, 5]
 # demo file
 
 run_test_file = 1
@@ -54,10 +55,10 @@ def main():
         use_templates=use_templates,
         use_amber=use_amber,
         msa_mode=msa_mode,
-        model_type="auto",
+        model_type="alphafold2",
         num_models=num_models,
         num_recycles=num_recycles,
-        model_order=[1, 2, 3, 4, 5],
+        model_order=model_order,
         is_complex=is_complex,
         data_dir=default_data_dir,
         keep_existing_results=keep_existing_results,
