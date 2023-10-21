@@ -16,7 +16,7 @@ logger.info('python_version %s', python_version)
 default_data_dir = Path('/mnt/sda/alphafold/af_data')
 msa_mode = "MMseqs2 (UniRef+Environmental)" #@param ["MMseqs2 (UniRef+Environmental)", "MMseqs2 (UniRef only)","single_sequence","custom"]
 num_models = 5 #@param [1,2,3,4,5] {type:"raw"}
-num_recycles = 6 #@param [1,3,6,12,24,48] {type:"raw"}
+num_recycles = 9 #@param [1,3,6,12,24,48] {type:"raw"}
 stop_at_score = 100 #@param {type:"string"}
 #@markdown - early stop computing models once score > threshold (avg. plddt for "structures" and ptmscore for "complexes")
 use_custom_msa = False
@@ -27,10 +27,11 @@ use_amber = num_relax > 0 # that's when num_relax > 0, use_amber becomes True au
 use_templates = True #@param {type:"boolean"}
 keep_existing_results = True #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
-model_order = [1, ]  # [1, 2, 3, 4, 5]
+model_order = [1, 2, 3, 4, 5 ]  # [1, 2, 3, 4, 5]
+num_seeds = 5
 # demo file
 
-run_test_file = 1
+run_test_file = 0
 if run_test_file:
     root_input_dir = Path('/mnt/nas/alphafold/af_input/tasks/monomer_demo/short_peptides')
     test_file = 'alpha_helix_DTFGRCRRWWAALGACRR.fasta'
@@ -49,13 +50,17 @@ def main():
     """  """
     queries, is_complex = get_queries(input_dir)
     logger.info('is_complex %s', is_complex)
+    if not is_complex:
+        model_type="alphafold2"
+    else:
+        model_type="auto"
     run(
         queries=queries,
         result_dir=result_dir,
         use_templates=use_templates,
         use_amber=use_amber,
         msa_mode=msa_mode,
-        model_type="alphafold2",
+        model_type=model_type,
         num_models=num_models,
         num_recycles=num_recycles,
         model_order=model_order,
@@ -66,6 +71,6 @@ def main():
         pair_mode="unpaired+paired",
         stop_at_score=stop_at_score,
         zip_results=zip_results,
-        num_seeds=5,
+        num_seeds=num_seeds,
         num_relax=num_relax,
     )
