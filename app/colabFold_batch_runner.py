@@ -28,7 +28,7 @@ use_templates = True #@param {type:"boolean"}
 keep_existing_results = True #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 model_order = [1, 2, 3, 4, 5 ]  # [1, 2, 3, 4, 5]
-num_seeds = 5
+num_seeds = 3
 # demo file
 
 run_test_file = 0
