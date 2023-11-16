@@ -28,7 +28,7 @@ use_templates = True #@param {type:"boolean"}
 keep_existing_results = True #@param {type:"boolean"}
 zip_results = False #@param {type:"boolean"}
 model_order = [1, 2, 3, 4, 5 ]  # [1, 2, 3, 4, 5]
-num_seeds = 3
+num_seeds = 2
 # demo file
 
 run_test_file = 0
@@ -37,7 +37,7 @@ if run_test_file:
     test_file = 'alpha_helix_DTFGRCRRWWAALGACRR.fasta'
     input_dir = root_input_dir / test_file
 else:
-    root_input_dir = Path('/mnt/nas/alphafold/af_input/tasks/peptides/anti_fungal_peptide')
+    root_input_dir = Path('/mnt/nas/alphafold/af_input/tasks/cyclic_peptide/FGF5-all-pos2')
     input_dir = root_input_dir
 result_dir = f'/mnt/nas/alphafold/af_out/cf_{Path(input_dir).stem}' #@param {type:"string"}
 Path(result_dir).mkdir(exist_ok=1, parents=1)

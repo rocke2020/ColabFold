@@ -6,4 +6,3 @@ from utils.log_util import logger
 if __name__ == "__main__":
     main()
     logger.info('end')
-    pass
