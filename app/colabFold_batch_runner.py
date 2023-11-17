@@ -1,6 +1,7 @@
 from pathlib import Path
 import logging
 from sys import version_info
+# This is not running from the folder in this repo, but from the installed package
 from colabfold.batch import get_queries, run
 from colabfold.utils import setup_logging
 
@@ -10,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO, format='%(asctime)s %(filename)s %(lineno)d: %(message)s',
     datefmt='%m-%d %H:%M:%S')
 python_version = f"{version_info.major}.{version_info.minor}"
-logger.info('python_version %s', python_version)
+logger.warning('python_version %s', python_version)
 
 
 default_data_dir = Path('/mnt/sda/alphafold/af_data')
@@ -31,7 +32,7 @@ model_order = [1, 2, 3, 4, 5 ]  # [1, 2, 3, 4, 5]
 num_seeds = 2
 # demo file
 
-run_test_file = 0
+run_test_file = 1
 if run_test_file:
     root_input_dir = Path('/mnt/nas/alphafold/af_input/tasks/monomer_demo/short_peptides')
     test_file = 'alpha_helix_DTFGRCRRWWAALGACRR.fasta'
@@ -49,7 +50,7 @@ if 'logging_setup' not in globals():
 def main():
     """  """
     queries, is_complex = get_queries(input_dir)
-    logger.info('is_complex %s', is_complex)
+    logger.warning('is_complex %s', is_complex)
     if not is_complex:
         model_type="alphafold2"
     else:
@@ -74,3 +75,7 @@ def main():
         num_seeds=num_seeds,
         num_relax=num_relax,
     )
+
+
+if __name__ == '__main__':
+    main()
