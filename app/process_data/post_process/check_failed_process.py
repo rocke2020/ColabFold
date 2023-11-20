@@ -23,6 +23,9 @@ SEED = 0
 random.seed(SEED)
 np.random.seed(SEED)
 cf_out_dir = Path('/mnt/nas/alphafold/af_out/cf_FGF5-all-pos2')
+failed_dir = Path('/mnt/nas/alphafold/af_input/tasks/cyclic_peptide/FGF5-all-pos2_cf_failed')
+failed_dir.mkdir(exist_ok=1, parents=1)
+input_dir = Path('/mnt/nas/alphafold/af_input/tasks/cyclic_peptide/FGF5-all-pos2')
 
 
 def collect_failed_process():
@@ -41,6 +44,9 @@ def collect_failed_process():
         if not is_finished:
             mtime = datetime.fromtimestamp(out_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')
             failed_sequences.append((out_path.stem, mtime))
+            input_file = input_dir / f'{out_path.stem}.fasta'
+            out_file = failed_dir / f'{out_path.stem}.fasta'
+            shutil.copy(input_file, out_file)
     failed_sequences = sorted(failed_sequences, key=lambda x: x[1])
     ic(len(failed_sequences))
     ic(failed_sequences)
