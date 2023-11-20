@@ -1,4 +1,3 @@
-import os, sys
 from app.colabFold_batch_runner import main
 from utils.log_util import logger
 

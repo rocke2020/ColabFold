@@ -67,13 +67,11 @@ def clear_mem(device="gpu"):
 TQDM_BAR_FORMAT = '{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]'
 
 def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
-                use_templates=False, filter=None, use_pairing=False,
+                use_templates=False, filter=None, use_pairing=False, pairing_strategy="greedy",
                 host_url="https://api.colabfold.com") -> Tuple[List[str], List[str]]:
   submission_endpoint = "ticket/pair" if use_pairing else "ticket/msa"
-  logger.info(f'run_mmseqs2 {host_url}/{submission_endpoint}')
 
   def submit(seqs, mode, N=101):
-    logger.info('seqs %s, mode %s, N %d', seqs, mode, N)
     n, query = N, ""
     for seq in seqs:
       query += f">{n}\n{seq}\n"
@@ -162,9 +160,14 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
     mode = "env-nofilter" if use_env else "nofilter"
 
   if use_pairing:
-    mode = ""
     use_templates = False
     use_env = False
+    mode = ""
+    # greedy is default, complete was the previous behavior
+    if pairing_strategy == "greedy":
+      mode = "pairgreedy"
+    elif pairing_strategy == "complete":
+      mode = "paircomplete"
 
   # define path
   path = f"{prefix}_{mode}"
@@ -181,8 +184,7 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
   Ms = [N + seqs_unique.index(seq) for seq in seqs]
   # lets do it!
   if not os.path.isfile(tar_gz_file):
-    TIME_ESTIMATE = 7200 * len(seqs_unique)
-    max_seconds = TIME_ESTIMATE
+    TIME_ESTIMATE = 150 * len(seqs_unique)
     with tqdm(total=TIME_ESTIMATE, bar_format=TQDM_BAR_FORMAT) as pbar:
       while REDO:
         pbar.set_description("SUBMIT")
@@ -204,20 +206,20 @@ def run_mmseqs2(x, prefix, use_env=True, use_filter=True,
 
         # wait for job to finish
         ID,TIME = out["id"],0
-        # logger.info('job ID %s', ID)
         pbar.set_description(out["status"])
-        while out["status"] in ["UNKNOWN", "RUNNING", "PENDING", "ERROR"]:
+        while out["status"] in ["UNKNOWN","RUNNING","PENDING"]:
           t = 5 + random.randint(0,5)
           logger.error(f"Sleeping for {t}s. Reason: {out['status']}")
           time.sleep(t)
           out = status(ID)
-          # pbar.set_description(out["status"])
-          TIME += t
-          if out["status"] in ("RUNNING", "ERROR"):
+          pbar.set_description(out["status"])
+          if out["status"] == "RUNNING":
+            TIME += t
             pbar.update(n=t)
-          if TIME > max_seconds and out["status"] != "COMPLETE":
-            # something failed on the server side, need to resubmit
-            break
+          #if TIME > 900 and out["status"] != "COMPLETE":
+          #  # something failed on the server side, need to resubmit
+          #  N += 1
+          #  break
 
         if out["status"] == "COMPLETE":
           if TIME < TIME_ESTIMATE:
